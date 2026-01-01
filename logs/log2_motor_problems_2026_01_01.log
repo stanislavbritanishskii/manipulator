@@ -1,0 +1,7 @@
+turns out the motors I have are initially not good enough, they only provide me with possibility of controlling their steps, but no actual feedback, no current control I'm not so sure why I bought them in the first place, though they would be some kind of a magic solution for my goal and didn't do enough reading on the matter at the moment.
+right now I see three main paths:
+1 - the easiest, use servos similar to those I used for the dog, may be slightly more powerful, but nothing new. downside is I won't have ane data on the joint state from the insight, only my hopes about the state I sent.
+2 - using dc motors with external current control and rotary potentiometers or absolute encoders, but potentiometers seem to be a lot cheaper
+3 - kinda a cheat, using dynamixel servos I would get all i need but at a quickly increased price, also I could run into some problems with controlling them
+
+after a long discussion with chat I settled down with using normal servos, ordered them, but they are crazy expensive, 60 euro per piece, and I will probably later need one more of these. in the meantime I'll be starting working on the software, for testing will be using my old 9g super cheap servos left from first versipons of the dog.
