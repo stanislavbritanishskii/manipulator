@@ -1,0 +1,6 @@
+The main idea right now is to use esp's built in pwm channels to control all the servos, I'll connect each servo to power individually, but they will be all receiving commands from the esp.
+The esp itself isn't supposed to be super smart, only a gateway between a real controller such as laptop or pi to the servos.
+So far I implemented serial and udp listeners which pass the commands on to the two connectes servos I'm using for initial testing.
+May be I'll also implement a small version of the hand for simplified testing, this would be running on 9g servos, probably will reuse the 3d files left from the dog not to wast too much time on this.
+
+Today i ran into a video on Youtube of a guy using strings to reduce weight of the hand, will think about it and try to implement, this way I would save a lot of extra weight, keeping all the servos on the base level and and only having linkages at the joints

@@ -1,0 +1,3 @@
+*.idea*
+esp_code/src/local_secrets.hpp
+*.pio*
