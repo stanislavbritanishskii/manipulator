@@ -1,5 +1,5 @@
 #include "SerialCommunicator.hpp"
-#include <string.h> // memset, memcpy
+#include <string.h>
 
 SerialCommunicator::SerialCommunicator() {
 	Serial.begin(115200);
@@ -23,7 +23,9 @@ void SerialCommunicator::read() {
 		counter %= sizeof(data);
 		_data_updated = true;
 	}
+
 	_data_updated *= (counter == 0);
+
 	if (_data_updated) {
 		memcpy(&data, buf, sizeof(data));
 	}
@@ -53,6 +55,10 @@ uint8_t SerialCommunicator::getWristRotation() {
 	return data.wrist_rotation;
 }
 
-uint8_t SerialCommunicator::getGrabberAngle() {
-	return data.grabber_angle;
+uint8_t SerialCommunicator::getFinger1() {
+	return data.finger1;
+}
+
+uint8_t SerialCommunicator::getFinger2() {
+	return data.finger2;
 }

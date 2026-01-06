@@ -1,4 +1,3 @@
-// UdpCommunicator.cpp
 #include "UDPCommunicator.hpp"
 
 UdpCommunicator::UdpCommunicator(const char *ssid,
@@ -29,7 +28,7 @@ bool UdpCommunicator::connect_wifi_() {
 	}
 
 	WiFi.mode(WIFI_STA);
-	WiFi.setSleep(false); // reduce latency for control links
+	WiFi.setSleep(false);
 	WiFi.begin(_ssid, _password);
 
 	uint32_t t0 = millis();
@@ -58,16 +57,9 @@ void UdpCommunicator::read() {
 	}
 
 	int packetSize = udp.parsePacket();
-	if (packetSize <= 0) {
-		_data_updated = false;
-		return;
-	}
-
-	// Require exact struct size for safety/determinism
 	if (packetSize != (int) sizeof(CommunicationData_t)) {
-		// Drain packet
 		while (udp.available() > 0) {
-			(void) udp.read();
+			udp.read();
 		}
 		return;
 	}
@@ -105,8 +97,12 @@ uint8_t UdpCommunicator::getWristRotation() {
 	return data.wrist_rotation;
 }
 
-uint8_t UdpCommunicator::getGrabberAngle() {
-	return data.grabber_angle;
+uint8_t UdpCommunicator::getFinger1() {
+	return data.finger1;
+}
+
+uint8_t UdpCommunicator::getFinger2() {
+	return data.finger2;
 }
 
 bool UdpCommunicator::wifi_connected() {

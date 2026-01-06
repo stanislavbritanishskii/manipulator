@@ -1,4 +1,3 @@
-// UdpCommunicator.hpp
 #ifndef UDPCOMMUNICATOR_HPP
 #define UDPCOMMUNICATOR_HPP
 
@@ -6,24 +5,17 @@
 #include "SerialCommunicator.hpp"
 #include <WiFi.h>
 #include <WiFiUdp.h>
-#include <string.h> // memset, memcpy
-
+#include <string.h>
 
 class UdpCommunicator {
 public:
-	// local_port: UDP port on ESP32 to listen to
-	// wifi_timeout_ms: how long to wait for Wi-Fi in begin()
 	UdpCommunicator(const char *ssid,
 					const char *password,
 					uint16_t local_port,
 					uint32_t wifi_timeout_ms = 15000);
 
-	// Call once in setup()
 	bool begin();
-
-	// Call repeatedly in loop()
 	void read();
-
 	bool data_updated();
 
 	uint8_t getBaseRotation();
@@ -31,9 +23,9 @@ public:
 	uint8_t getElbowAngle();
 	uint8_t getWristAngle();
 	uint8_t getWristRotation();
-	uint8_t getGrabberAngle();
+	uint8_t getFinger1();
+	uint8_t getFinger2();
 
-	// Optional helpers
 	bool wifi_connected();
 	IPAddress local_ip();
 	uint16_t local_port();

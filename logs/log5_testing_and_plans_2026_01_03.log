@@ -1,0 +1,6 @@
+ Just received 12v power supply, 60kg and 25 kg servos, still waiting for 150 kg one. tested the ones I got with a step down converter connected to the 12 v power supply, everything seems to work, the 60 kg is drawing tons of current voltage is droping at quick movement even without any load, might need a better step down later, for now mine is good enough.
+I have to create models for all the bones of the hand to be easily connectable to the servos.
+plastic enclosure for the 12 v power supply to hide all the naked cables.
+the gripper itself
+the rotating base to have decreased load on the base rotating motor that I haven't even ordered yet
+Hopefully this al won't take forever...
