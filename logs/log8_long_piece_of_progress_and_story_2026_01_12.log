@@ -1,0 +1,7 @@
+ince last log a lot has happened, I burnt a power supply, ordered some more stuff, mostly finished the hand designing.
+for the upper and lower parts of the hand I adopted design of the cranes, it seems to be pretty light and strong. it was amazingly easy to implement it in freecad with some triangle wholes.
+I am still having troubles with cabling, it still looks terrible and i get frequent short circuits. Still waiting for cables to arrive, should be coming by the end of this week or the beginning of the next one.
+Those short circuits are how I buent my previous power supply, the new one seems to hold pretty well for now, probably randomly got one with better protection, though all of them have these very negative feedbacks on amazon about them really burning down, like with fire
+for the rotating base of the hand I decided to use a 60 kg servo, same as in elbow, it is weaker than the 150 servo of the shoulder, but also cheaper, to decrease the load on the base servo I designed a base with a circle to which the arm is connected, this circle platform is held between bearings which are mounted to the body of the base. yet the base is still very unstable, I'll have to design a bottom piece which will be connected to the table with clamps, which I'll take from internet probably.
+overall the results are still amazing and I'm still very happy with how it's going, I was expecting to get way more drawbacks
+ 

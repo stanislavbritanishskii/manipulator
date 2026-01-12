@@ -6,7 +6,7 @@
 static const uint16_t LISTEN_PORT = 5005;
 
 static const int servoPin = 13;
-static const int servoPin2 = 22;
+static const int servoPin2 = 26;
 static const int servoPin3 = 23;
 static const int servoPin4 = 18;
 static const int servoPin5 = 19;
