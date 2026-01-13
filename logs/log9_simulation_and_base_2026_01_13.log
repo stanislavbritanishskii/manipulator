@@ -1,0 +1,3 @@
+currently printing base, probably am overusing plastic for it, but I want to be sure it is strong.
+with help of chat just created a simulation in pybullet of the hand, it looks pretty well, just not all the joints are working exactly as expected, will be fixing it later, but for now it looks good.
+probably till I get decen cables I'm gonna leave the physical hand alone and play with the simulation, want to create more or less smart code that would be able to control the hand well enough to execute some basic tasks

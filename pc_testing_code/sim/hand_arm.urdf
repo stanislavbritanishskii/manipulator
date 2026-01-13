@@ -1,0 +1,235 @@
+<?xml version="1.0"?>
+<robot name="udp_hand_arm">
+
+	<!-- Units: meters, kilograms, radians -->
+
+	<link name="base_link">
+		<inertial>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<mass value="1.0"/>
+			<inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+		</inertial>
+		<visual>
+			<origin xyz="0 0 0.02" rpy="0 0 0"/>
+			<geometry>
+				<cylinder radius="0.05" length="0.04"/>
+			</geometry>
+		</visual>
+		<collision>
+			<origin xyz="0 0 0.02" rpy="0 0 0"/>
+			<geometry>
+				<cylinder radius="0.05" length="0.04"/>
+			</geometry>
+		</collision>
+	</link>
+
+	<!-- Joint 0: base rotation around Z -->
+	<link name="column_link">
+		<inertial>
+			<origin xyz="0 0 0.05" rpy="0 0 0"/>
+			<mass value="0.5"/>
+			<inertia ixx="0.0005" ixy="0" ixz="0" iyy="0.0005" iyz="0" izz="0.0002"/>
+		</inertial>
+		<visual>
+			<origin xyz="0 0 0.05" rpy="0 0 0"/>
+			<geometry>
+				<cylinder radius="0.03" length="0.10"/>
+			</geometry>
+		</visual>
+		<collision>
+			<origin xyz="0 0 0.05" rpy="0 0 0"/>
+			<geometry>
+				<cylinder radius="0.03" length="0.10"/>
+			</geometry>
+		</collision>
+	</link>
+
+	<joint name="base_rotation" type="revolute">
+		<parent link="base_link"/>
+		<child link="column_link"/>
+		<origin xyz="0 0 0" rpy="0 0 0"/>
+		<axis xyz="0 0 1"/>
+		<limit lower="-1.57079632679" upper="1.57079632679" effort="50" velocity="3.0"/>
+		<dynamics damping="0.2" friction="0.0"/>
+	</joint>
+
+	<!-- Joint 1: shoulder bend (sideways) at +10cm -->
+	<link name="upper_arm_link">
+		<inertial>
+			<origin xyz="0.15 0 0" rpy="0 0 0"/>
+			<mass value="0.7"/>
+			<inertia ixx="0.0008" ixy="0" ixz="0" iyy="0.0020" iyz="0" izz="0.0020"/>
+		</inertial>
+		<visual>
+			<origin xyz="0.15 0 0" rpy="0 1.57079632679 0"/>
+			<geometry>
+				<cylinder radius="0.02" length="0.30"/>
+			</geometry>
+		</visual>
+		<collision>
+			<origin xyz="0.15 0 0" rpy="0 1.57079632679 0"/>
+			<geometry>
+				<cylinder radius="0.02" length="0.30"/>
+			</geometry>
+		</collision>
+	</link>
+
+	<joint name="shoulder_angle" type="revolute">
+		<parent link="column_link"/>
+		<child link="upper_arm_link"/>
+		<origin xyz="0 0 0.10" rpy="0 0 0"/>
+		<axis xyz="0 1 0"/>
+		<limit lower="-1.57079632679" upper="1.57079632679" effort="50" velocity="3.0"/>
+		<dynamics damping="0.2" friction="0.0"/>
+	</joint>
+
+	<!-- Joint 2: elbow bend after +30cm -->
+	<link name="forearm_link">
+		<inertial>
+			<origin xyz="0.10 0 0" rpy="0 0 0"/>
+			<mass value="0.5"/>
+			<inertia ixx="0.0005" ixy="0" ixz="0" iyy="0.0010" iyz="0" izz="0.0010"/>
+		</inertial>
+		<visual>
+			<origin xyz="0.10 0 0" rpy="0 1.57079632679 0"/>
+			<geometry>
+				<cylinder radius="0.018" length="0.20"/>
+			</geometry>
+		</visual>
+		<collision>
+			<origin xyz="0.10 0 0" rpy="0 1.57079632679 0"/>
+			<geometry>
+				<cylinder radius="0.018" length="0.20"/>
+			</geometry>
+		</collision>
+	</link>
+
+	<joint name="elbow_angle" type="revolute">
+		<parent link="upper_arm_link"/>
+		<child link="forearm_link"/>
+		<origin xyz="0.30 0 0" rpy="0 0 0"/>
+		<axis xyz="0 1 0"/>
+		<limit lower="-1.57079632679" upper="1.57079632679" effort="40" velocity="3.0"/>
+		<dynamics damping="0.2" friction="0.0"/>
+	</joint>
+
+	<!-- Joint 3: wrist bend after +20cm -->
+	<link name="wrist_pitch_link">
+		<inertial>
+			<origin xyz="0.025 0 0" rpy="0 0 0"/>
+			<mass value="0.25"/>
+			<inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0002" iyz="0" izz="0.0002"/>
+		</inertial>
+		<visual>
+			<origin xyz="0.025 0 0" rpy="0 1.57079632679 0"/>
+			<geometry>
+				<cylinder radius="0.016" length="0.05"/>
+			</geometry>
+		</visual>
+		<collision>
+			<origin xyz="0.025 0 0" rpy="0 1.57079632679 0"/>
+			<geometry>
+				<cylinder radius="0.016" length="0.05"/>
+			</geometry>
+		</collision>
+	</link>
+
+	<joint name="wrist_angle" type="revolute">
+		<parent link="forearm_link"/>
+		<child link="wrist_pitch_link"/>
+		<origin xyz="0.20 0 0" rpy="0 0 0"/>
+		<axis xyz="0 1 0"/>
+		<limit lower="-1.57079632679" upper="1.57079632679" effort="20" velocity="4.0"/>
+		<dynamics damping="0.15" friction="0.0"/>
+	</joint>
+
+	<!-- Joint 4: wrist rotation after +5cm -->
+	<link name="palm_link">
+		<inertial>
+			<origin xyz="0.015 0 0" rpy="0 0 0"/>
+			<mass value="0.2"/>
+			<inertia ixx="0.00005" ixy="0" ixz="0" iyy="0.00008" iyz="0" izz="0.00008"/>
+		</inertial>
+		<visual>
+			<origin xyz="0.015 0 0" rpy="0 0 0"/>
+			<geometry>
+				<box size="0.03 0.06 0.02"/>
+			</geometry>
+		</visual>
+		<collision>
+			<origin xyz="0.015 0 0" rpy="0 0 0"/>
+			<geometry>
+				<box size="0.03 0.06 0.02"/>
+			</geometry>
+		</collision>
+	</link>
+
+	<joint name="wrist_rotation" type="revolute">
+		<parent link="wrist_pitch_link"/>
+		<child link="palm_link"/>
+		<origin xyz="0.05 0 0" rpy="0 0 0"/>
+		<axis xyz="1 0 0"/>
+		<limit lower="-1.57079632679" upper="1.57079632679" effort="10" velocity="6.0"/>
+		<dynamics damping="0.10" friction="0.0"/>
+	</joint>
+
+	<!-- Fingers after +3cm -->
+	<link name="finger1_link">
+		<inertial>
+			<origin xyz="0.035 0 0" rpy="0 0 0"/>
+			<mass value="0.05"/>
+			<inertia ixx="0.00001" ixy="0" ixz="0" iyy="0.00002" iyz="0" izz="0.00002"/>
+		</inertial>
+		<visual>
+			<origin xyz="0.035 0 0" rpy="0 0 0"/>
+			<geometry>
+				<box size="0.07 0.015 0.015"/>
+			</geometry>
+		</visual>
+		<collision>
+			<origin xyz="0.035 0 0" rpy="0 0 0"/>
+			<geometry>
+				<box size="0.07 0.015 0.015"/>
+			</geometry>
+		</collision>
+	</link>
+
+	<link name="finger2_link">
+		<inertial>
+			<origin xyz="0.035 0 0" rpy="0 0 0"/>
+			<mass value="0.05"/>
+			<inertia ixx="0.00001" ixy="0" ixz="0" iyy="0.00002" iyz="0" izz="0.00002"/>
+		</inertial>
+		<visual>
+			<origin xyz="0.035 0 0" rpy="0 0 0"/>
+			<geometry>
+				<box size="0.07 0.015 0.015"/>
+			</geometry>
+		</visual>
+		<collision>
+			<origin xyz="0.035 0 0" rpy="0 0 0"/>
+			<geometry>
+				<box size="0.07 0.015 0.015"/>
+			</geometry>
+		</collision>
+	</link>
+
+	<joint name="finger1" type="revolute">
+		<parent link="palm_link"/>
+		<child link="finger1_link"/>
+		<origin xyz="0.03 0.02 0" rpy="0 0 0"/>
+		<axis xyz="0 0 1"/>
+		<limit lower="-1.57079632679" upper="1.57079632679" effort="5" velocity="8.0"/>
+		<dynamics damping="0.05" friction="0.0"/>
+	</joint>
+
+	<joint name="finger2" type="revolute">
+		<parent link="palm_link"/>
+		<child link="finger2_link"/>
+		<origin xyz="0.03 -0.02 0" rpy="0 0 0"/>
+		<axis xyz="0 0 1"/>
+		<limit lower="-1.57079632679" upper="1.57079632679" effort="5" velocity="8.0"/>
+		<dynamics damping="0.05" friction="0.0"/>
+	</joint>
+
+</robot>
