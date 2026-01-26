@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Robotic Arm Control</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+	<style>
+		body {
+			margin: 0;
+			background: #1a1a1a;
+			overflow: hidden;
+			font-family: 'Segoe UI', Arial, sans-serif;
+			color: white;
+		}
+		
+		#info {
+			position: absolute;
+			top: 20px;
+			left: 50%;
+			transform: translateX(-50%);
+			background: rgba(255, 255, 255, 0.1);
+			padding: 15px 30px;
+			border-radius: 10px;
+			border: 2px solid #fff3;
+			z-index: 20;
+			text-align: center;
+		}
+		
+		#info h2 {
+			margin: 0 0 10px 0;
+			font-size: 18px;
+		}
+		
+		#status {
+			font-size: 14px;
+			margin-top: 10px;
+			color: #4CAF50;
+		}
+		
+		.param {
+			display: inline-block;
+			margin: 5px 15px;
+			font-size: 13px;
+		}
+		
+		.joystick-container {
+			position: absolute;
+			width: 150px;
+			height: 150px;
+			background: rgba(255, 255, 255, 0.1);
+			border: 2px solid #fff3;
+			border-radius: 50%;
+			touch-action: none;
+			z-index: 10;
+		}
+		
+		.joystick-thumb {
+			position: absolute;
+			width: 50px;
+			height: 50px;
+			background: #ffffff88;
+			border-radius: 50%;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			transition: background 0.2s;
+		}
+		
+		.joystick-container:active .joystick-thumb {
+			background: #ffffffcc;
+		}
+		
+		.joystick-label {
+			position: absolute;
+			bottom: -30px;
+			left: 50%;
+			transform: translateX(-50%);
+			font-size: 12px;
+			white-space: nowrap;
+		}
+		
+		#joyLeft {
+			left: 10%;
+			bottom: 10%;
+		}
+		
+		#joyRight {
+			right: 10%;
+			bottom: 10%;
+		}
+		
+		/* Vertical slider in the middle */
+		#sliderContainer {
+			position: absolute;
+			left: 50%;
+			bottom: 10%;
+			transform: translateX(-50%);
+			width: 60px;
+			height: 200px;
+			background: rgba(255, 255, 255, 0.1);
+			border: 2px solid #fff3;
+			border-radius: 30px;
+			z-index: 10;
+			touch-action: none;
+		}
+		
+		#sliderThumb {
+			position: absolute;
+			width: 50px;
+			height: 50px;
+			background: #ffffff88;
+			border-radius: 50%;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			transition: background 0.2s;
+		}
+		
+		#sliderContainer:active #sliderThumb {
+			background: #ffffffcc;
+		}
+		
+		.slider-label {
+			position: absolute;
+			bottom: -30px;
+			left: 50%;
+			transform: translateX(-50%);
+			font-size: 12px;
+		}
+
+		/* Horizontal gripper slider on the right top */
+		#gripperSliderContainer {
+			position: absolute;
+			right: 10%;
+			top: 120px;
+			width: 200px;
+			height: 60px;
+			background: rgba(255, 255, 255, 0.1);
+			border: 2px solid #fff3;
+			border-radius: 30px;
+			z-index: 10;
+			touch-action: none;
+		}
+
+		#gripperSliderThumb {
+			position: absolute;
+			width: 50px;
+			height: 50px;
+			background: #4CAF5088;
+			border-radius: 50%;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			transition: background 0.2s;
+		}
+
+		#gripperSliderContainer:active #gripperSliderThumb {
+			background: #4CAF50cc;
+		}
+
+		.gripper-label {
+			position: absolute;
+			top: -30px;
+			left: 50%;
+			transform: translateX(-50%);
+			font-size: 12px;
+		}
+	</style>
+</head>
+<body>
+	<div id="info">
+		<h2>Robotic Arm Control</h2>
+		<div>
+			<span class="param">Dist: <span id="distVal">30.0</span>cm</span>
+			<span class="param">Height: <span id="zVal">10.0</span>cm</span>
+			<span class="param">Pitch: <span id="pitchVal">0.0</span>°</span>
+			<span class="param">Yaw: <span id="yawVal">45.0</span>°</span>
+			<span class="param">Roll: <span id="rollVal">0.0</span>°</span>
+			<span class="param">Gripper: <span id="gripperVal">90.0</span>°</span>
+		</div>
+		<div id="status">Connecting...</div>
+	</div>
+
+	<div id="joyLeft" class="joystick-container">
+		<div class="joystick-thumb"></div>
+		<div class="joystick-label">Distance & Yaw</div>
+	</div>
+
+	<div id="sliderContainer">
+		<div id="sliderThumb"></div>
+		<div class="slider-label">Height</div>
+	</div>
+
+	<div id="joyRight" class="joystick-container">
+		<div class="joystick-thumb"></div>
+		<div class="joystick-label">Pitch & Roll</div>
+	</div>
+
+	<div id="gripperSliderContainer">
+		<div id="gripperSliderThumb"></div>
+		<div class="gripper-label">Gripper (0-180°)</div>
+	</div>
+
+<script>
+	const ws = new WebSocket("ws://" + location.hostname + ":8765");
+
+	ws.onopen = () => {
+		document.getElementById('status').textContent = 'Connected';
+		document.getElementById('status').style.color = '#4CAF50';
+	};
+
+	ws.onclose = () => {
+		document.getElementById('status').textContent = 'Disconnected';
+		document.getElementById('status').style.color = '#f44336';
+	};
+
+	ws.onmessage = (event) => {
+		const state = JSON.parse(event.data);
+		if (state.dist !== undefined) {
+			document.getElementById('distVal').textContent = state.dist.toFixed(1);
+			document.getElementById('zVal').textContent = state.z.toFixed(1);
+			document.getElementById('pitchVal').textContent = (state.pitch * 180 / Math.PI).toFixed(1);
+			document.getElementById('yawVal').textContent = (state.yaw * 180 / Math.PI).toFixed(1);
+			document.getElementById('rollVal').textContent = (state.roll * 180 / Math.PI).toFixed(1);
+			document.getElementById('gripperVal').textContent = state.gripper.toFixed(1);
+		}
+	};
+
+	const joysticks = {};
+
+	function setupJoystick(id) {
+		const container = document.getElementById(id);
+		const thumb = container.querySelector(".joystick-thumb");
+		let active = false;
+		let pos = {x: 0, y: 0};
+
+		const getOffset = (e) => {
+			let rect = container.getBoundingClientRect();
+			let clientX = e.clientX || (e.touches && e.touches[0].clientX);
+			let clientY = e.clientY || (e.touches && e.touches[0].clientY);
+			let x = clientX - rect.left;
+			let y = clientY - rect.top;
+			let dx = (x - rect.width/2) / (rect.width/2);
+			let dy = (y - rect.height/2) / (rect.height/2);
+			return {x: Math.max(-1, Math.min(1, dx)), y: Math.max(-1, Math.min(1, dy))};
+		};
+
+		const moveThumb = (pos) => {
+			thumb.style.left = 50 + pos.x * 40 + '%';
+			thumb.style.top = 50 + pos.y * 40 + '%';
+		};
+
+		const reset = () => {
+			pos = {x: 0, y: 0};
+			moveThumb(pos);
+		};
+
+		const update = (e) => {
+			if (!active) return;
+			e.preventDefault();
+			pos = getOffset(e);
+			moveThumb(pos);
+		};
+
+		container.addEventListener("mousedown", (e) => { active = true; update(e); });
+		container.addEventListener("touchstart", (e) => { active = true; update(e); });
+		window.addEventListener("mouseup", () => { active = false; reset(); });
+		window.addEventListener("touchend", () => { active = false; reset(); });
+		window.addEventListener("mousemove", update);
+		window.addEventListener("touchmove", update, { passive: false });
+
+		joysticks[id] = () => pos;
+	}
+
+	// Setup vertical slider
+	function setupSlider() {
+		const container = document.getElementById('sliderContainer');
+		const thumb = document.getElementById('sliderThumb');
+		let active = false;
+		let pos = {y: 0};
+
+		const getOffset = (e) => {
+			let rect = container.getBoundingClientRect();
+			let clientY = e.clientY || (e.touches && e.touches[0].clientY);
+			let y = clientY - rect.top;
+			let dy = (y - rect.height/2) / (rect.height/2);
+			return {y: Math.max(-1, Math.min(1, dy))};
+		};
+
+		const moveThumb = (pos) => {
+			thumb.style.top = 50 + pos.y * 40 + '%';
+		};
+
+		const reset = () => {
+			pos = {y: 0};
+			moveThumb(pos);
+		};
+
+		const update = (e) => {
+			if (!active) return;
+			e.preventDefault();
+			pos = getOffset(e);
+			moveThumb(pos);
+		};
+
+		container.addEventListener("mousedown", (e) => { active = true; update(e); });
+		container.addEventListener("touchstart", (e) => { active = true; update(e); });
+		window.addEventListener("mouseup", () => { active = false; reset(); });
+		window.addEventListener("touchend", () => { active = false; reset(); });
+		window.addEventListener("mousemove", update);
+		window.addEventListener("touchmove", update, { passive: false });
+
+		joysticks.slider = () => pos;
+	}
+
+	// Setup horizontal gripper slider
+	function setupGripperSlider() {
+		const container = document.getElementById('gripperSliderContainer');
+		const thumb = document.getElementById('gripperSliderThumb');
+		let active = false;
+		let pos = {x: 0};
+
+		const getOffset = (e) => {
+			let rect = container.getBoundingClientRect();
+			let clientX = e.clientX || (e.touches && e.touches[0].clientX);
+			let x = clientX - rect.left;
+			let dx = (x - rect.width/2) / (rect.width/2);
+			return {x: Math.max(-1, Math.min(1, dx))};
+		};
+
+		const moveThumb = (pos) => {
+			thumb.style.left = 50 + pos.x * 40 + '%';
+		};
+
+		const reset = () => {
+			pos = {x: 0};
+			moveThumb(pos);
+		};
+
+		const update = (e) => {
+			if (!active) return;
+			e.preventDefault();
+			pos = getOffset(e);
+			moveThumb(pos);
+		};
+
+		container.addEventListener("mousedown", (e) => { active = true; update(e); });
+		container.addEventListener("touchstart", (e) => { active = true; update(e); });
+		window.addEventListener("mouseup", () => { active = false; reset(); });
+		window.addEventListener("touchend", () => { active = false; reset(); });
+		window.addEventListener("mousemove", update);
+		window.addEventListener("touchmove", update, { passive: false });
+
+		joysticks.gripperSlider = () => pos;
+	}
+
+	setupJoystick("joyLeft");
+	setupJoystick("joyRight");
+	setupSlider();
+	setupGripperSlider();
+
+	// Keyboard support
+	let keyboardJoy1 = {x: 0, y: 0}; // WASD
+	let keyboardJoy2 = {x: 0, y: 0}; // Arrows
+	let keyboardSlider = {y: 0};     // Q/E
+	let keyboardGripper = {x: 0};    // Z/X
+
+	document.addEventListener("keydown", e => {
+		switch (e.key) {
+			case "w": case "W": keyboardJoy1.y = -1; break;
+			case "s": case "S": keyboardJoy1.y = 1; break;
+			case "a": case "A": keyboardJoy1.x = -1; break;
+			case "d": case "D": keyboardJoy1.x = 1; break;
+
+			case "ArrowUp": keyboardJoy2.y = -1; break;
+			case "ArrowDown": keyboardJoy2.y = 1; break;
+			case "ArrowLeft": keyboardJoy2.x = -1; break;
+			case "ArrowRight": keyboardJoy2.x = 1; break;
+
+			case "q": case "Q": keyboardSlider.y = -1; break;
+			case "e": case "E": keyboardSlider.y = 1; break;
+
+			case "z": case "Z": keyboardGripper.x = -1; break;
+			case "x": case "X": keyboardGripper.x = 1; break;
+		}
+	});
+
+	document.addEventListener("keyup", e => {
+		switch (e.key) {
+			case "w": case "W": case "s": case "S": keyboardJoy1.y = 0; break;
+			case "a": case "A": case "d": case "D": keyboardJoy1.x = 0; break;
+
+			case "ArrowUp": case "ArrowDown": keyboardJoy2.y = 0; break;
+			case "ArrowLeft": case "ArrowRight": keyboardJoy2.x = 0; break;
+
+			case "q": case "Q": case "e": case "E": keyboardSlider.y = 0; break;
+
+			case "z": case "Z": case "x": case "X": keyboardGripper.x = 0; break;
+		}
+	});
+
+	// Send joystick states to server
+	setInterval(() => {
+		const data = {
+			joy1: keyboardJoy1.x || keyboardJoy1.y ? keyboardJoy1 : joysticks["joyLeft"](),
+			slider: keyboardSlider.y ? keyboardSlider : joysticks["slider"](),
+			joy2: keyboardJoy2.x || keyboardJoy2.y ? keyboardJoy2 : joysticks["joyRight"](),
+			gripperSlider: keyboardGripper.x ? keyboardGripper : joysticks["gripperSlider"]()
+		};
+		if (ws.readyState === WebSocket.OPEN)
+			ws.send(JSON.stringify(data));
+	}, 33); // ~30 fps
+</script>
+
+</body>
+</html>

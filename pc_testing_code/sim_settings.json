@@ -1,0 +1,56 @@
+{
+  "arm_dimensions": {
+    "base_len": 10,
+    "shoulder_len": 30,
+    "arm_len": 20,
+    "wrist_len": 8
+  },
+  "motor_offsets": {
+    "base_rotation": 0,
+    "base_angle": 0,
+    "elbow": 0,
+    "wrist_angle": 0,
+    "wrist_rotation": 0,
+    "finger1": 0,
+    "finger2": 0
+  },
+  "default_position": {
+    "dist": 5,
+    "z": 40,
+    "pitch": -1,
+    "yaw": 0.0,
+    "roll": 0.0,
+    "gripper": 90.0
+  },
+  "network": {
+    "udp_ip": "127.0.0.1",
+    "udp_port": 5005,
+    "websocket_port": 8765,
+    "http_port": 8000
+  },
+  "control_limits": {
+    "dist_min": 0.0,
+    "dist_max": 80.0,
+    "z_min": -10.0,
+    "z_max": 80.0,
+    "pitch_min": -3.141592653589793,
+    "pitch_max": 3.141592653589793,
+    "yaw_min": 0.0,
+    "yaw_max": 3.141592653589793,
+    "roll_min": -1.5707963267948966,
+    "roll_max": 1.5707963267948966,
+    "gripper_min": 0.0,
+    "gripper_max": 180.0
+  },
+  "control_sensitivity": {
+    "dist": 0.5,
+    "yaw": 0.05,
+    "z": 0.5,
+    "pitch": 0.05,
+    "roll": 0.05,
+    "gripper": 2.0
+  },
+  "gripper": {
+    "finger_offset": 7.0
+  }
+}

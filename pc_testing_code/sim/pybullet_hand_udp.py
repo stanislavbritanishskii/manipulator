@@ -19,7 +19,9 @@ def clamp(x, lo, hi):
 
 
 def byte_to_rad(v_u8):
-	# 0..180 maps to -90..+90 degrees
+	# 90 -> 0 rad (neutral)
+	# 0 -> -90 deg = -π/2
+	# 180 -> +90 deg = +π/2
 	v = clamp(int(v_u8), 0, 180)
 	deg = float(v - 90)
 	return deg * (math.pi / 180.0)
@@ -61,42 +63,33 @@ def main():
 
 	urdf_path = os.path.abspath(args.urdf)
 	robot_id = p.loadURDF(urdf_path, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], useFixedBase=True)
-    # --- spawn a 5cm cube next to the hand ---
-	half = 0.025  # 5cm cube => half extents 2.5cm
+
+	# --- spawn a 5cm cube ---
+	half = 0.025
 
 	col_id = p.createCollisionShape(p.GEOM_BOX, halfExtents=[half, half, half])
 	vis_id = p.createVisualShape(p.GEOM_BOX, halfExtents=[half, half, half])
 
-# approximate position: near the palm (x forward), slightly to the side (y), above ground (z)
-	cube_pos = [0.35, 0.10, 0.05]
-
+	cube_pos = [0.0, 0.10, 0.60]
 	cube_orn = p.getQuaternionFromEuler([0.0, 0.0, 0.0])
 
 	cube_id = p.createMultiBody(
-	baseMass=0.2,
-	baseCollisionShapeIndex=col_id,
-	baseVisualShapeIndex=vis_id,
-	basePosition=cube_pos,
-	baseOrientation=cube_orn)
+		baseMass=0.2,
+		baseCollisionShapeIndex=col_id,
+		baseVisualShapeIndex=vis_id,
+		basePosition=cube_pos,
+		baseOrientation=cube_orn)
 
-# friction so it doesn't slide forever
-	p.changeDynamics(cube_id, -1, lateralFriction=1.0, rollingFriction=0.001, spinningFriction=0.001)
-
-	# Joint order expected by your sender:
-	# [base_rotation, shoulder_angle, elbow_angle, wrist_angle, wrist_rotation, finger1, finger2]
-# --- friction tuning (cube + finger links) ---
-
-# Cube friction
 	p.changeDynamics(
-	cube_id,
-	-1,
-	lateralFriction=2.0,
-	spinningFriction=0.02,
-	rollingFriction=0.01,
-	restitution=0.0
+		cube_id,
+		-1,
+		lateralFriction=20.0,
+		spinningFriction=0.02,
+		rollingFriction=0.01,
+		restitution=0.0
 	)
 
-# Finger friction (robot links)
+	# Finger friction
 	finger_joint_names = ["finger1", "finger2"]
 
 	name_to_joint_index = {}
@@ -107,14 +100,14 @@ def main():
 		name_to_joint_index[jname] = ji
 
 	for fname in finger_joint_names:
-		link_index = name_to_joint_index[fname]  # in PyBullet jointIndex == child link index
+		link_index = name_to_joint_index[fname]
 		p.changeDynamics(
-		robot_id,
-		link_index,
-		lateralFriction=2.5,
-		spinningFriction=0.03,
-		rollingFriction=0.01,
-		restitution=0.0
+			robot_id,
+			link_index,
+			lateralFriction=20.5,
+			spinningFriction=0.03,
+			rollingFriction=0.01,
+			restitution=0.0
 		)
 
 	expected_joint_names = [
@@ -128,7 +121,6 @@ def main():
 	]
 
 	name_to_index = {}
-	num_joints = p.getNumJoints(robot_id)
 	for ji in range(num_joints):
 		info = p.getJointInfo(robot_id, ji)
 		jname = info[1].decode("utf-8")
@@ -141,7 +133,10 @@ def main():
 			return 2
 		joint_indices.append(name_to_index[n])
 
-	# Reset joints to "middle" = 90deg -> 0 rad
+	# --- finger1 link index (same integer as its joint index in PyBullet) ---
+	finger1_link_index = name_to_index["finger1"]
+
+	# Reset to neutral
 	for ji in joint_indices:
 		p.resetJointState(robot_id, ji, targetValue=0.0)
 		p.setJointMotorControl2(
@@ -161,8 +156,11 @@ def main():
 	dt = 1.0 / hz
 	next_t = time.time()
 
+	# --- debug text handle (GUI) ---
+	debug_text_id = -1
+	print("\033[0;0H", end="")
 	while True:
-		# Receive latest packet (non-blocking); keep only the newest in the queue
+		# Receive latest packet
 		while True:
 			try:
 				data, _addr = sock.recvfrom(64)
@@ -180,6 +178,8 @@ def main():
 		if last_packet is not None:
 			for i in range(7):
 				targets[i] = clamp(byte_to_rad(last_packet[i]), -math.pi / 2.0, math.pi / 2.0)
+				if i == 2:
+					targets[i] += math.pi/4
 
 		# Apply motor targets
 		for i, ji in enumerate(joint_indices):
@@ -194,6 +194,32 @@ def main():
 			)
 
 		p.stepSimulation()
+
+		# --- show finger1 "tip" coordinate (actually link COM/center) ---
+		# This will work in GUI; in DIRECT it is harmless (no visible output).
+		# before the while True loop
+
+		# inside the loop
+		try:
+			ls = p.getLinkState(robot_id, finger1_link_index, computeForwardKinematics=True)
+			pos = ls[0]
+			txt = "x={:.2f} y={:.2f} z={:.2f}".format(pos[0], pos[1], pos[2])
+
+			if debug_text_id >= 0:
+				p.removeUserDebugItem(debug_text_id)
+				debug_text_id = -1
+
+			# draw at a fixed world position (so it's not next to the finger)
+			print(txt, end="\r")
+			# debug_text_id = p.addUserDebugText(
+			# 	txt,
+			# 	[pos[0], pos[1], pos[2]],  # pick any stable spot you like
+			# 	textColorRGB=[0.0, 0.0, 0.0],
+			# 	textSize=1.2,
+			# 	lifeTime=0.0
+			# )
+		except Exception:
+			pass
 
 		# pacing
 		now = time.time()

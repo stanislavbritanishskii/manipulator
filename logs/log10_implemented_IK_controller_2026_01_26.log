@@ -1,0 +1,6 @@
+in the last week or so I have impleemnted an operational IK ocontroller.
+the controls for the hand are done over a webserv running on the laptop, a phone is connected to the web page witha few joystics and laptop then sends the data via udp to the hand.
+the joysticks control the desired position of the gripper, and the rest of the hand tries to position itself accordingly.
+with the simulation it is working just fine, yes there are some offsets, but they are constant, but in reality the hand is doing something very much different, I'm not sure yet, why, it could be because of offsets of the motors, as they all are a few degrees off from what I'm taking in calculations.
+when trying to move the gripper further away from the base it gets lower, it would make sense to think, that the problem  is merely with motors being too weak, but when the gripper is close to the hand it is going way too high compare to where it should be
+
