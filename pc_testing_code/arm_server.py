@@ -131,6 +131,7 @@ class ArmController:
 
 				angles[-2] = finger1_degrees * pi / 180.0
 				angles[-1] = finger2_degrees * pi / 180.0
+				angles[1] *= 180 / 270
 				print(angles)
 				# Apply motor offsets to all angles
 				for i in range(len(angles)):

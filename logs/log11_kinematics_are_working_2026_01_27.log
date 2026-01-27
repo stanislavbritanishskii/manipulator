@@ -1,0 +1,6 @@
+today i figured out what was wrong with the hand, why it was moving so much. turns out the motor in the bottom has 270 degrees of movemnt, instead of 180 as I thought, oops.
+i got rid of this huge offset that was happening when moving the hand forward, that was all because of the different angle mapping.
+current implementation still isn't perfect, but it is already close to something nice. there still is some offset between desired coordinates and real coordinates, but that's not as bad as it was.
+
+I have also changed angle of the elbow, so now it can ben dup to 135 degrees in one direction and only 45 in the other, on one hand I reduced overall useable area, on the other, I increased useable are on one side of the hand, for all the set ups I have in mind for the future it will be way more useful
+
