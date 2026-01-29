@@ -1,0 +1,4 @@
+with claude created a few scripts. one to send data from raspberry pis, one to receive data.
+seems to work, but i just broke my camera, hopefully tomorrow will get the new one from amazon, just ordered it
+the whole tracking thing seems terrifying, I want to have at leasat a couple of cameras, aruco markers for ground positioning. hopefully one or two aruco markers on the hand if it works out. and then i want to try to find stuff in space based on images without aruco markers now. there were these markers for kinda unique location of all the edges and angles in image, kinda making each of them unique,  I have a bit of hope that it would be enough to locate objects and to manage to pick them up with the hand
+
