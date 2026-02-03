@@ -1,0 +1,5 @@
+received the new camera from amazon, it's  working fine
+with chat implemented a calibration script, calibrated it roughly with a checkerboard on tablet. turns out something I keep forgetting, the size of the board is one square less in each direction. so if the checkerboard is 6x7, code should consider it 5x6. cause it's calculating inner angles.
+made a small script to recognise aruco markers, after calibration seems to work way better.
+obviously I'll have to use something different to the tablet later, but it is what it is for now
+
