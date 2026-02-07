@@ -105,6 +105,7 @@ class ArmController:
 	def send_to_arm(self):
 		"""Calculate angles and send to arm"""
 		try:
+			print(self.dist, self.z, self.pitch, self.yaw, self.roll)
 			self.arm.calculate_angles(self.dist, self.z, self.pitch, self.yaw, self.roll)
 			angles = list(map(lambda x: x[0], self.arm.get_angles())) + [0, 0]
 

@@ -181,6 +181,7 @@ if __name__ == "__main__":
 	import argparse
 	from receiver import UDPJPEGReceiver
 	from image_funcs import scale_image
+	import json
 
 	parser = argparse.ArgumentParser(description='UDP JPEG Receiver Test')
 	parser.add_argument('--port', type=int, default=5000)
@@ -201,8 +202,14 @@ if __name__ == "__main__":
 					vis = calibrator.draw_last_detection(img, res["corners"], True)
 					print("frames:", res["used_frames"], "rms:", res["rms"])
 					if res["K"] is not None:
-						print("K:\n", res["K"])
-						print("D:\n", res["D"])
+						d = {
+							str(camera_id): {
+								"K": res["K"].tolist(),
+								"D": res["D"].tolist()
+							}
+						}
+						print(json.dumps(d, indent=2))
+
 				else:
 					vis = calibrator.draw_last_detection(img, res["corners"], True)
 					print("no board")

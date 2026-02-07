@@ -82,6 +82,7 @@ class Arm:
 		x = cos(yaw) * dist
 		y = sin(yaw) * dist
 		end_point = Point(x, y, z)
+		print(end_point)
 		# self.wrist_angle = pitch
 		self.wrist_rotation = [roll, roll]
 		self.base_rotation = [yaw-pi/2, yaw-pi/2]
@@ -99,6 +100,7 @@ class Arm:
 		min_dist = math.sqrt(
 			shoulder_squared + arm_squared - 2.0 * self.shoulder_len * self.arm_len * cos(pi/4)
 		)
+		print("top wrist before norm ", top_wrist)
 
 		if dist > self.arm_len + self.shoulder_len:
 			point *= (self.arm_len + self.shoulder_len) / dist
@@ -110,7 +112,7 @@ class Arm:
 
 
 
-		# print("top wrist ", top_wrist)
+		print("top wrist ", top_wrist)
 		# top_wrist = end_point
 
 		# shoulder angle calculation
@@ -126,7 +128,7 @@ class Arm:
 		swd = shoulder_wrist_diff  # for short
 
 		shoulder_wrist_pitch = atan2(swd.z, sqrt(swd.x ** 2 + swd.y ** 2))
-		# print("shoulder wrist pitch", shoulder_wrist_pitch)
+		print("shoulder wrist pitch", shoulder_wrist_pitch)
 
 		shoulder_arm_triangle_angle_cos = (shoulder_squared + third_squared - arm_squared) / (
 				2 * self.shoulder_len * third)
@@ -137,7 +139,7 @@ class Arm:
 			shoulder_arm_triangle_angle_cos = -1
 		shoulder_arm_triangle_angle = acos(shoulder_arm_triangle_angle_cos)
 
-		# print("shoulder_arm_triangle_angle ", shoulder_arm_triangle_angle)
+		print("shoulder_arm_triangle_angle ", shoulder_arm_triangle_angle)
 		#
 		# shoulder_angle = shoulder_wrist_pitch - shoulder_arm_triangle_angle - pi / 2
 		shoulder_angles = [-(shoulder_wrist_pitch + shoulder_arm_triangle_angle - pi/2),
@@ -155,28 +157,28 @@ class Arm:
 
 		# elbow angle adjustment
 			real_shoulder_pitch = pi / 2 - shoulder_angles[i]
-			#print("shoulder pitch ", real_shoulder_pitch)
+			print("shoulder pitch ", real_shoulder_pitch)
 
 			dx = cos(real_shoulder_pitch) * cos(yaw)
 			dy = cos(real_shoulder_pitch) * sin(yaw)
 			dz = sin(real_shoulder_pitch)
 			elbow_point = shoulder_point + [dx * self.shoulder_len, dy * self.shoulder_len, dz * self.shoulder_len]
-			#print("elbow_point", elbow_point)
+			print("elbow_point", elbow_point)
 			elbow_to_wrist = top_wrist - elbow_point
-			#print("distnace from elbow joint to wrist top", elbow_to_wrist.norm())
+			print("distnace from elbow joint to wrist top", elbow_to_wrist.norm())
 			if (elbow_to_wrist.norm() > self.arm_len + 0.1 or elbow_to_wrist.norm() < self.arm_len - 0.1):
-				# #print("reversing shoulder angle")
+				# print("reversing shoulder angle")
 				shoulder_angles[i] *= -1
 				real_shoulder_pitch = pi / 2 - shoulder_angles[i]
-				# #print("shoulder pitch ", real_shoulder_pitch)
+				# print("shoulder pitch ", real_shoulder_pitch)
 
 				dx = cos(real_shoulder_pitch) * cos(yaw)
 				dy = cos(real_shoulder_pitch) * sin(yaw)
 				dz = sin(real_shoulder_pitch)
 				elbow_point = shoulder_point + [dx * self.shoulder_len, dy * self.shoulder_len, dz * self.shoulder_len]
-				#print("elbow_point", elbow_point)
+				print("elbow_point", elbow_point)
 				elbow_to_wrist = elbow_point - top_wrist
-				#print("distnace from elbow joint to wrist top", elbow_to_wrist.norm())
+				print("distnace from elbow joint to wrist top", elbow_to_wrist.norm())
 			etw = elbow_to_wrist # for short
 
 			# if shoulder_wrist_pitch < real_shoulder_pitch:
@@ -194,8 +196,8 @@ class Arm:
 				elbow_angles[i] *= -1
 				elbow_pitch = pi / 2 - shoulder_angles[i] - elbow_angles[i]
 
-			#print("elbow pitch", elbow_pitch)
-			#print((calculated_top_wrist - top_wrist).norm())
+			print("elbow pitch", elbow_pitch)
+			print((calculated_top_wrist - top_wrist).norm())
 
 			wrist_angles.append(-pitch + elbow_pitch)
 
